@@ -1,0 +1,36 @@
+<script
+  src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+  
+<script>
+function checks() {
+    getPlayers();
+}
+
+
+function getPlayers() {
+$.get( `api/get_players.php?ID=<?php echo $_GET["ID"]; ?>`, function( data ) {
+  players = data.split(":");
+  $('#players').html(players.join("<br />"));
+  //alert(data);
+});
+}
+</script>
+  
+  
+<center>
+<h1>Welcome to the lobby for room <?php echo($_GET["ID"]); ?></h1>
+<h3>Players currently in this lobby:</h3>
+<div id='players'>Loading...</div>
+</center>
+
+<script>
+setInterval(function() {
+  checks();
+}, 1000);
+
+window.onload = function() {
+  checks();
+};
+</script>

@@ -1,0 +1,85 @@
+<center>
+<!--Header-->
+<script
+  src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+
+<h1>BuzzIt!</h1>
+<h2>Join a room</h2>
+
+<!--Javascript-->
+<script>
+//error
+function error(message) {
+    alert(message);
+}
+
+
+//Variables for nextJoinStep
+var Nickname;
+var RoomID;
+var joinStage = 1
+
+//nextJoinStep
+function nextJoinStep() {
+	if(joinStage == 1) {
+    
+		RoomID = $('#main_input').val();
+        
+        //Check if room exists
+        $('#main_button').html("One moment please...");
+        $("#main_button").attr("disabled", "disabled");
+        $.get( `api/check_exists.php?ID=${RoomID}`, function( data ) {
+          if(data == "false") {
+            $("#main_button").removeAttr("disabled");   
+            $('#main_button').html("Next");            
+            error("That room doesn't exist!");
+          } else {      
+            //Reset buttons
+            $('#main_button').html("Join");
+            $('#main_input').attr("placeholder", "Nickname");
+            $('#main_input').val("");
+            joinStage++;
+            $("#main_button").removeAttr("disabled");
+          }
+        });
+	} else if (joinStage == 2) {
+        Nickname = $('#main_input').val();
+        $('#main_button').html("One moment please...");
+        $("#main_button").attr("disabled", "disabled");
+        $.get( `api/join_game.php?ID=${RoomID}&name=${Nickname}`, function( data ) {
+          if(data == "err_name_taken") { //Make sure name ain't taken
+            error("Sorry, but that name is already taken. Please enter another."); //if it is error
+            
+            //reset buttons
+            $('#main_button').html("Join");
+            $('#main_input').val("");
+            $("#main_button").removeAttr("disabled");
+          } else if(data == "true") {
+            //alert(`Joined room ${RoomID} with nickname ${Nickname} (todo: actually make it join)`);
+            window.location.href = `lobby.html?ID=${RoomID}&name=${Nickname}`; //Join game lobby
+          } else {
+            error("An error occured. Please refresh the page and try again.");
+          }
+        });
+        
+    }
+}
+</script>
+
+
+<!--Join game form-->
+<input id="main_input" type="text" placeholder="Room ID"></input>
+<button id="main_button" onclick="nextJoinStep();">Next</button>
+
+
+<script>
+// Makes enter work in textbox
+$("#main_input").keyup(function(event) {
+    if (event.keyCode === 13) {
+        $("#main_button").click();
+    }
+});
+</script>
+</center>
